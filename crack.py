@@ -1,39 +1,51 @@
 import argparse
 import hashlib
+import sys
 
-parser = argparse.ArgumentParser(prog="Hash Cracker v1.0",description="Hack cracker written in Python")
+def get_args():
+    parser = argparse.ArgumentParser(prog="Hash Cracker v1.0",description="Hack cracker written in Python")
 
-parser.add_argument("--format", type=str, help="Hash format")
-parser.add_argument("--wordlist", type=str, help="Word list")
-parser.add_argument("--hash", type=str, help="Hash to crack")
+    parser.add_argument("--format", type=str, help="Hash format")
+    parser.add_argument("--wordlist", type=str, help="Word list")
+    parser.add_argument("--hash", type=str, help="Hash to crack")
 
-allowed_hash_formats = ["md5", "sha1", "sha256", "sha512"]
-
-arguments = parser.parse_args()
-
-hash, hashformat, wordlist = arguments.hash, arguments.format, arguments.wordlist
+    return parser.parse_args()
+   
 
 def crack(hash, hashformat, wordlist):
-    if hashformat not in allowed_hash_formats:
-        print("[!] Hash format not allowed.")
-
+    
     with open(wordlist, 'r') as dictfile:
         words = dictfile.readlines()
 
-    if hashformat == "md5":
-        for word in words:
-            if hash == md5sum(word):
-                print("[+] Hash has been cracked.")
-                print(f"[HASH] {hashformat} --> {hash}:{word}")
-                break
-            else:
-                pass
-    ...
+    
+    for word in words:
+        print("\rTrying --> " + str(word), end="")
+        sys.stdout.flush()
+        # time.sleep(0.5)
 
-def md5sum(password: str):
-    return hashlib.md5(bytes(password, "utf8")).hexdigest()
-
-crack(hash, hashformat, wordlist)
+        if hash != hashsum(hashformat,word):
+            continue
+        
+        print("[+] Hash has been cracked.")
+        print(f"[HASH] {hashformat} --> {hash} --> {word}", end="")
+        break
 
 
-# print(arguments._get_args())
+def hashsum(hashformat:str, password: str):
+
+    hashfunctions = {
+        'md5' : hashlib.md5,
+        'sha1' : hashlib.sha1,
+        'sha256' : hashlib.sha256
+    }
+
+    if  hashformat in hashfunctions:
+        return hashfunctions[hashformat](password.encode("utf8")).hexdigest()
+    
+    print("[+] Hash not supported")
+
+if __name__ == "__main__":
+    arguments = get_args()
+    hash, hashformat, wordlist = arguments.hash, arguments.format, arguments.wordlist
+    crack(hash, hashformat, wordlist)
+
