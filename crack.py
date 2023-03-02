@@ -14,19 +14,18 @@ def get_args():
 
 def crack(hash, hashformat, wordlist):
     
-    with open(wordlist, 'r') as dictfile:
+    with open(wordlist, 'r', encoding="iso-8859-1") as dictfile:
         words = dictfile.readlines()
 
     
     for word in words:
-        print("\rTrying --> " + str(word), end="")
+        print(f"\rTrying --> {word.strip()}" + " "*(100-len(word)), end="")
         sys.stdout.flush()
-        # time.sleep(0.5)
 
         if hash != hashsum(hashformat,word):
             continue
         
-        print("[+] Hash has been cracked.")
+        print("\n[+] Hash has been cracked.")
         print(f"[HASH] {hashformat} --> {hash} --> {word}", end="")
         break
 
