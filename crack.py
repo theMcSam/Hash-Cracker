@@ -1,5 +1,6 @@
 import argparse
 import hashlib
+import multiprocessing
 import sys
 
 def get_args():
