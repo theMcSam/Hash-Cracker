@@ -13,23 +13,45 @@ def get_args():
     return parser.parse_args()
    
 
-def crack(hash, hashformat, wordlist):
+def crack_word_chunks(chunk: list, hash: str, hashformat: str, result_queue):
+    for word in chunk:
+        if hash == hashsum( hashformat, word.strip()):
+            result_queue.put((True, word))
+            return
+
+        result_queue.put((False, None))
+
+def crack(hash: str, hashformat: str, wordlist: str):
     
+    result_queue = multiprocessing.Queue()
+
     with open(wordlist, 'r', encoding="iso-8859-1") as dictfile:
         words = dictfile.readlines()
 
+    num_of_cores = multiprocessing.cpu_count()
+
+    chunk_size = len(words) // num_of_cores
+
+    chunks = [words[i:i+chunk_size] for i in range(0, len(words), chunk_size)]
+
+    processes = []
+
+    for chunk in chunks:
+        process = multiprocessing.Process(target=crack_word_chunks, \
+                                          args=(chunk, hash, hashformat, result_queue))
+        processes.append(process)
+        process.start()
+
+    for process in processes:
+        process.join()
+
+    while not result_queue.empty():
+        result = result_queue.get()
+        if result[0]:
+            print("[+] Hash has been cracked.")
+            print(f"[HASH] {hashformat} --> {hash} --> {result[1]}", end="")
+            return
     
-    for word in words:
-        print(f"\rTrying --> {word.strip()}" + " "*(100-len(word)), end="")
-        sys.stdout.flush()
-
-        if hash != hashsum(hashformat,word):
-            continue
-        
-        print("\n[+] Hash has been cracked.")
-        print(f"[HASH] {hashformat} --> {hash} --> {word}", end="")
-        break
-
 
 def hashsum(hashformat:str, password: str):
 
