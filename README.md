@@ -10,7 +10,7 @@ Command: `cd hash_cracker`
 Cracking hashes.<br>
 Command: `python crack.py --format <hashfomat> --hash <hash> --wordlist <wordlist>`
 
-Example: `python crack.py --format md5 --hash 0716a5cea0577995508b18acd9a590bd`
+Example: `python crack.py --format md5 --hash 0716a5cea0577995508b18acd9a590bd --wordlist rockyou.txt`
 
 Hashing types or formats currently supported:
 1. md5 
